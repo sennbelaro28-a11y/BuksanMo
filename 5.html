@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 🐾</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #ffeef8;
+            background-image: url('https://www.pinterest.com/pin/655273814515156141/');
+            background-size: cover;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow: hidden;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(214, 51, 132, 0.4);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 6px solid #ff85a2;
+            z-index: 10;
+        }
+
+        h1 { color: #d63384; font-size: 2.2rem; margin-bottom: 10px; }
+        .date-info { color: #ff4d6d; font-weight: bold; font-size: 1.3rem; margin-bottom: 20px; }
+
+        .cat-gif {
+            width: 100%;
+            max-width: 280px;
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+
+        /* BUTTON LAYOUT */
+        .btn-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-around; /* This separates the buttons */
+            align-items: center;
+            width: 100%;
+            height: 80px;
+            position: relative;
+        }
+
+        button {
+            padding: 18px 45px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        #yesBtnAvail, #yesBtnVal {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 6px 15px rgba(255, 77, 109, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+
+        #noBtnAvail, #noBtnVal {
+            background-color: #adb5bd;
+            color: white;
+            position: relative; /* Starts in place, then goes absolute */
+            z-index: 999;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .hidden { display: none; }
+
+        .heart {
+            position: fixed;
+            color: #ff4d6d;
+            font-size: 25px;
+            z-index: 1;
+            animation: float 3s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Music embed - initially hidden */
+        #music-embed {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Spotify embed for initial music (e.g., "Easy to Fall in Love" by Olivia Dean) -->
+    <iframe id="music-embed" src="https://open.spotify.com/embed/track/4w3tQBXhn3aJ7GgGtgzweQ" width="300" height="152" frameborder="0" allowtransparency="true" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+    <div class="card" id="mainCard">
+        <div id="availabilitySection">
+            <h1>Are you free on Feb 18, Monday night?</h1>
+            <p class="date-info">Let's make some plans! 🐱</p>
+
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZid2ZqZzRsc3B0ZzRsc3B0ZzRsc3B0ZzRsc3B0ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KztT2c4u8mYYUiMKdJ/giphy.gif" class="cat-gif">
+
+            <div class="btn-container">
+                <button id="yesBtnAvail" onclick="goToValentine()">YES!</button>
+                <button id="noBtnAvail" onmouseover="moveNoAvail()" onclick="moveNoAvail()">No</button>
+            </div>
+        </div>
+
+        <div id="valentineSection" class="hidden">
+            <h1>Will you be my Valentine? 🌹</h1>
+            <p class="date-info">February 18, Monday @ 8:00 PM</p>
+
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZid2ZqZzRsc3B0ZzRsc3B0ZzRsc3B0ZzRsc3B0ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KztT2c4u8mYYUiMKdJ/giphy.gif" class="cat-gif">
+
+            <div class="btn-container">
+                <button id="yesBtnVal" onclick="acceptInvite()">YES!</button>
+                <button id="noBtnVal" onmouseover="moveNoVal()" onclick="moveNoVal()">No</button>
+            </div>
+        </div>
+
+        <div id="celebrationSection" class="hidden">
+            <h1>Yay! It's a Date! ❤️</h1>
+            <p style="font-size: 1.2rem;">I'm the luckiest person ever!</p>
+            <img src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" class="cat-gif">
+            <p class="date-info">See you Monday at 8 PM!</p>
+        </div>
+    </div>
+
+    <script>
+        let musicStarted = false;
+
+        function startMusic() {
+            if (!musicStarted) {
+                // Spotify embeds do not autoplay. The embed is shown briefly for user interaction.
+                musicStarted = true;
+            }
+        }
+
+        function moveNoAvail() {
+            startMusic();
+            const noBtn = document.getElementById('noBtnAvail');
+            noBtn.style.position = 'fixed';
+            const padding = 100;
+            const x = Math.random() * (window.innerWidth - padding * 2) + padding;
+            const y = Math.random() * (window.innerHeight - padding * 2) + padding;
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+            const texts = ["Are you sure?", "Wrong way!", "Wait!!", "Try again", "Nope!"];
+            noBtn.innerText = texts[Math.floor(Math.random() * texts.length)];
+        }
+
+        function moveNoVal() {
+            startMusic();
+            const noBtn = document.getElementById('noBtnVal');
+            noBtn.style.position = 'fixed';
+            const padding = 100;
+            const x = Math.random() * (window.innerWidth - padding * 2) + padding;
+            const y = Math.random() * (window.innerHeight - padding * 2) + padding;
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+            const texts = ["Are you sure?", "Wrong way!", "Wait!!", "Try again", "Nope!"];
+            noBtn.innerText = texts[Math.floor(Math.random() * texts.length)];
+        }
+
+        function goToValentine() {
+            startMusic();
+            document.getElementById('availabilitySection').classList.add('hidden');
+            document.getElementById('valentineSection').classList.remove('hidden');
+        }
+
+        function acceptInvite() {
+            startMusic();
+            // Change the Spotify embed to "Perfect" by Ed Sheeran
+            const embed = document.getElementById('music-embed');
+            embed.src = 'https://open.spotify.com/embed/track/6sGIMrtIzQjdzNndVxe397';
+            // Show the embed for 10 seconds so the user can click play (autoplay not supported)
+            embed.style.display = 'block';
+            setTimeout(() => embed.style.display = 'none', 10000); // Hide after 10 seconds
+            document.getElementById('valentineSection').classList.add('hidden');
+            document.getElementById('celebrationSection').classList.remove('hidden');
+            createHearts();
+        }
+
+        function createHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.classList.add('heart');
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 3000);
+            }, 200);
+        }
+    </script>
+</body>
+</html>
